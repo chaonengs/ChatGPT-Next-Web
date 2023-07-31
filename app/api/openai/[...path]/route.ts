@@ -7,12 +7,13 @@ import { auth } from "../../default-auth";
 import { requestOpenai } from "../../common";
 import * as auth0 from "@auth0/nextjs-auth0/edge";
 import { getAuth0User } from "@/app/utils/auth0";
+import { kv } from "@vercel/kv";
+import { UserProfile } from "@auth0/nextjs-auth0/client";
 
 const ALLOWD_PATH = new Set(Object.values(OpenaiPath));
+const config = getServerSideConfig();
 
 function getModels(remoteModelRes: OpenAIListModelResponse) {
-  const config = getServerSideConfig();
-
   if (config.disableGPT4) {
     remoteModelRes.data = remoteModelRes.data.filter(
       (m) => !m.id.startsWith("gpt-4"),
@@ -20,6 +21,31 @@ function getModels(remoteModelRes: OpenAIListModelResponse) {
   }
 
   return remoteModelRes;
+}
+
+async function addQuery(userId: string) {
+  await kv.lpush(`query:${userId}`, new Date().getTime());
+}
+
+async function handleQueryRateCheck(user: UserProfile): Promise<boolean> {
+  const redisKey = `query:${user.sub}`;
+  if (user.plan === "hobby") {
+    const count = await kv.llen(redisKey);
+    if (count < config.hobbyLimitQueries) {
+      await kv.lpush(redisKey, new Date().getTime());
+      return false;
+    } else {
+      const oldest = Number.parseInt((await kv.lrange(redisKey, 0, 0))[0]);
+      if (oldest + config.hobbyLimitDuration * 1000 > new Date().getTime()) {
+        return false;
+      } else {
+        await kv.lpush(redisKey, new Date().getTime());
+        await kv.ltrim(redisKey, 0, 2);
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 async function handle(
@@ -55,6 +81,19 @@ async function handle(
     return NextResponse.json(authResult, {
       status: 401,
     });
+  }
+
+  const exceedLimitation = await handleQueryRateCheck(user);
+  if (exceedLimitation) {
+    return NextResponse.json(
+      {
+        error: true,
+        msg: "You have reached request rate limitation",
+      },
+      {
+        status: 403,
+      },
+    );
   }
 
   try {
