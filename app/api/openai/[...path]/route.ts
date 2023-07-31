@@ -3,8 +3,10 @@ import { getServerSideConfig } from "@/app/config/server";
 import { OpenaiPath } from "@/app/constant";
 import { prettyObject } from "@/app/utils/format";
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "../../auth";
+import { auth } from "../../default-auth";
 import { requestOpenai } from "../../common";
+import * as auth0 from "@auth0/nextjs-auth0/edge";
+import { getAuth0User } from "@/app/utils/auth0";
 
 const ALLOWD_PATH = new Set(Object.values(OpenaiPath));
 
@@ -25,6 +27,9 @@ async function handle(
   { params }: { params: { path: string[] } },
 ) {
   console.log("[OpenAI Route] params ", params);
+  const { authenticated, user } = await getAuth0User(req);
+  console.log("[OpenAI Route] user ", user);
+  console.log("[OpenAI Route] user plan ", user.plan);
 
   if (req.method === "OPTIONS") {
     return NextResponse.json({ body: "OK" }, { status: 200 });
