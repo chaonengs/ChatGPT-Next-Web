@@ -1,0 +1,27 @@
+{
+    "options": {
+      "strategy": "sms",
+      "provider": "sms_gateway",
+      "gateway_url": "{urlOfYourGateway}",
+      "from": "+1 234 567",
+      "template": "Your verification code is: @@password@@",
+      "brute_force_protection": true,
+      "forward_req_info": "true",
+      "disable_signup": false,
+      "name": "sms",
+      "syntax": "md_with_macros",
+      "totp": {
+        "time_step": 300,
+        "length": 6
+      },
+      "gateway_authentication": {
+        "method": "bearer",
+        "subject": "urn:Auth0",
+        "audience": "urn:MySmsGateway",
+        "secret": "MySecretToSignTheToken",
+        "secret_base64_encoded": false
+    }
+    },
+    "is_domain_connection": false,
+    "enabled_clients": []
+}

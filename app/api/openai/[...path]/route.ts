@@ -37,11 +37,11 @@ async function handleQueryRateCheck(user: UserProfile): Promise<boolean> {
     } else {
       const oldest = Number.parseInt((await kv.lrange(redisKey, 0, 0))[0]);
       if (oldest + config.hobbyLimitDuration * 1000 > new Date().getTime()) {
-        return false;
+        return true;
       } else {
         await kv.lpush(redisKey, new Date().getTime());
         await kv.ltrim(redisKey, 0, 2);
-        return true;
+        return false;
       }
     }
   }

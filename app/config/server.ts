@@ -50,7 +50,7 @@ export const getServerSideConfig = () => {
     hideBalanceQuery: !!process.env.HIDE_BALANCE_QUERY,
     hobbyLimitQueries: process.env.HOBBY_PLAN_LIMIT_QUERIES
       ? Number.parseInt(process.env.HOBBY_PLAN_LIMIT_QUERIES)
-      : 3,
+      : 10,
     hobbyLimitDuration: process.env.HOBBY_PLAN_LIMIT_DURATION
       ? Number.parseInt(process.env.HOBBY_PLAN_LIMIT_DURATION)
       : 10800,

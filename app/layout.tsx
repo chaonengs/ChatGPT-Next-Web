@@ -8,8 +8,8 @@ import { type Metadata } from "next";
 import { UserProvider } from "@auth0/nextjs-auth0/client";
 
 export const metadata: Metadata = {
-  title: "ChatGPT Next Web",
-  description: "Your personal ChatGPT Chat Bot.",
+  title: "Max AI",
+  description: "Powered by ChatGPT.",
   viewport: {
     width: "device-width",
     initialScale: 1,
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     { media: "(prefers-color-scheme: dark)", color: "#151515" },
   ],
   appleWebApp: {
-    title: "ChatGPT Next Web",
+    title: "Max AI",
     statusBarStyle: "default",
   },
 };
